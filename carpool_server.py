@@ -52,13 +52,14 @@ class S(BaseHTTPRequestHandler):
                 response_url = data["response_url"]
                 self.send_error_to_slack(response_url[0], "There is not enough arguments")
             else:
-                user_id = data["channel_id"]
+                user_id = data["user_id"]
+                user_name = data["user_name"]
                 if text[0].lower() == 'offer':
                     res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                           "time": text[4].strip(), "seats": text[5].strip(), "id": user_id}
+                           "time": text[4].strip(), "seats": text[5].strip(), "id": user_id, "name": user_name}
                 else:
                     res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                           "time": text[4].strip(), "id": user_id}
+                           "time": text[4].strip(), "id": user_id, "name": user_name}
                 logger.info(f'The json for the database {res}')
                 print(res)
                 return res
