@@ -45,7 +45,7 @@ class S(BaseHTTPRequestHandler):
         text = data.get("text")
         if not text:
             response_url = data["response_url"]
-            self.send_error_to_slack(response_url[0], "There is no text")
+            self.send_error_to_slack(response_url[0], "")
         else:
             text = text[0].split(',')
             if len(text) < 6:
@@ -53,7 +53,7 @@ class S(BaseHTTPRequestHandler):
                 self.send_error_to_slack(response_url[0], "There is not enough arguments")
             else:
                 user_id = data["channel_id"]
-                if text[0] == 'create':
+                if text[0].lower() == 'offer':
                     res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
                            "time": text[4].strip(), "seats": text[5].strip(), "id": user_id}
                 else:
