@@ -1,6 +1,15 @@
 import json
+import logging
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+fh = logging.FileHandler('cyberpool.log')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 class S(BaseHTTPRequestHandler):
@@ -23,8 +32,8 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
-
         slack_json = json.loads(self.data_bytes)
+        logger.info(f'Get a new salsh command from user: {slack_json}')
         data_to_mysql = self.to_json(slack_json)
         # print the parsed json to the screen
         self.wfile.write(json.dumps(data_to_mysql, indent=2).encode('utf-8'))
@@ -40,6 +49,7 @@ class S(BaseHTTPRequestHandler):
         else:
             res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
                    "time": text[4].strip(), "id": user_id}
+        logger.info(f'The json for the database {res}')
         return res
 
 
@@ -57,3 +67,6 @@ if __name__ == "__main__":
         run(port=int(argv[1]))
     else:
         run()
+
+
+
