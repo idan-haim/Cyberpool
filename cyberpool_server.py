@@ -1,5 +1,6 @@
 import json
 import logging
+import urllib
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import request, parse
@@ -33,13 +34,20 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
-        my_json = self.data_bytes.decode('utf8').replace("'", '"')
-        slack_json = json.loads(my_json)
-        logger.info(f'Get a new salsh command from user: {slack_json}')
-        data_to_mysql = self.parse_data_to_sql(slack_json)
+        logger.info(f'Got new raw request: {self.data_bytes}')
+        data_dict = self.convert_query_string_to_dict(self.data_bytes)
+        data_to_mysql = self.parse_data_to_sql(data_dict)
+        logger.info(f'data_to_mysql: {data_to_mysql}')
+
         # print the parsed json to the screen
         self.wfile.write(json.dumps(data_to_mysql, indent=2).encode('utf-8'))
+
         return
+
+    def convert_query_string_to_dict(self, data):
+        data_str = data.decode('utf-8')
+        qs_data = urllib.parse.urlsplit(data_str).path.replace("'", '"')
+        return json.loads(qs_data)
 
     def parse_data_to_sql(self, data):
         text = data.get("text")
