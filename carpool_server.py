@@ -45,7 +45,7 @@ class S(BaseHTTPRequestHandler):
         text = data.get("text")
         if not text:
             response_url = data["response_url"]
-            self.send_error_to_slack(response_url[0], "")
+            self.send_error_to_slack(response_url[0], "Offer: From: To: Date: Time: Num Of Seats: ")
         else:
             text = text[0].split(',')
             if len(text) < 6:
