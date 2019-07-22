@@ -25,6 +25,7 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
         slack_data = json.loads(self.data_string)
+        # For troubleshooting, uncomment the 3 following lines
         with open("test.json", "w") as outfile:
             json.dump(slack_data, outfile)
         print("{}".format(slack_data))
