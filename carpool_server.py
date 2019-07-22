@@ -46,33 +46,34 @@ class S(BaseHTTPRequestHandler):
         if not text:
             response_url = data["response_url"]
             self.send_error_to_slack(response_url[0], "There is no text")
-        if len(text) < 6:
-            response_url = data["response_url"]
-            self.send_error_to_slack(response_url[0], "There is not enough arguments")
         else:
-            text = text.split(',')
-            user_id = data["channel_id"]
-            if text[0] == 'create':
-                res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                       "time": text[4].strip(), "seats": text[5].strip(), "id": user_id}
+            text = text[0].split(',')
+            if len(text) < 6:
+                response_url = data["response_url"]
+                self.send_error_to_slack(response_url[0], "There is not enough arguments")
             else:
-                res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                       "time": text[4].strip(), "id": user_id}
-            logger.info(f'The json for the database {res}')
-            print(res)
-            return res
+                user_id = data["channel_id"]
+                if text[0] == 'create':
+                    res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
+                           "time": text[4].strip(), "seats": text[5].strip(), "id": user_id}
+                else:
+                    res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
+                           "time": text[4].strip(), "id": user_id}
+                logger.info(f'The json for the database {res}')
+                print(res)
+                return res
 
     def send_error_to_slack(self, response_url, msg):
-        # post = {"text": "{0}".format(msg)}
-        # try:
-        #     json_data = json.dumps(post)
-        #     req = request.Request(response_url,
-        #                           data=json_data.encode('ascii'),
-        #                           headers={'Content-Type': 'application/json'})
-        #     request.urlopen(req)
-        # except Exception as em:
-        #     print("EXCEPTION: " + str(em))
-        print("wrong input")
+        post = {"text": "{0}".format(msg)}
+        try:
+            json_data = json.dumps(post)
+            req = request.Request(response_url,
+                                  data=json_data.encode('ascii'),
+                                  headers={'Content-Type': 'application/json'})
+            request.urlopen(req)
+        except Exception as em:
+            print("EXCEPTION: " + str(em))
+        # print("wrong input")
 
 def run(server_class=HTTPServer, handler_class=S, port=8001):
     server_address = ('', port)
