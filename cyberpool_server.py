@@ -1,6 +1,15 @@
 import json
+import logging
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+fh = logging.FileHandler('cyberpool.log')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 class S(BaseHTTPRequestHandler):
@@ -19,19 +28,30 @@ class S(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self._set_headers()
-        self.data_string = self.rfile.read(int(self.headers['Content-Length']))
-
         self.send_response(200)
         self.end_headers()
 
-        slack_data = json.loads(self.data_string)
-        # For troubleshooting, uncomment the 3 following lines
-        with open("test.json", "w") as outfile:
-            json.dump(slack_data, outfile)
-        print("{}".format(slack_data))
-        self.wfile.write(b'POST!!!!!!!!!!!!!!!')
-
+        self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
+        slack_json = json.loads(self.data_bytes)
+        logger.info(f'Get a new salsh command from user: {slack_json}')
+        data_to_mysql = self.to_json(slack_json)
+        # print the parsed json to the screen
+        self.wfile.write(json.dumps(data_to_mysql, indent=2).encode('utf-8'))
+        
         return
+
+    def to_json(self, slack_input):
+        text = slack_input["text"]
+        text = text.split(',')
+        user_id = slack_input["slack_id"]
+        if text[0] == 'create':
+            res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
+                   "time": text[4].strip(), "seats": text[5].strip(), "id": user_id}
+        else:
+            res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
+                   "time": text[4].strip(), "id": user_id}
+        logger.info(f'The json for the database {res}')
+        return res
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8001):
@@ -48,3 +68,6 @@ if __name__ == "__main__":
         run(port=int(argv[1]))
     else:
         run()
+
+
+
