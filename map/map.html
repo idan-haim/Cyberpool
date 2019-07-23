@@ -75,9 +75,8 @@
         //users destination/source
         let data = fetch('data.json').then(function (response) {
             return response.json();
-        }).then(function (res) {
-            parsedObj = res.data;
-
+        }).then(function (response) {
+            parsedObj = response.data;
             console.log(parsedObj);
             //icon for user to office
             var icon2 = {
