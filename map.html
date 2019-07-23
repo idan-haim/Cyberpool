@@ -27,19 +27,24 @@
     var infowindow;
     let parsedObj;
     var myLatLng;
+    var xhttp = new XMLHttpRequest();
+
 
     function bindInfoWindow(marker, map, infowindow, name, time) {
         google.maps.event.addListener(marker, 'click', function () {
-            infowindow.setContent(name + time);
+            infowindow.setContent(name + time +"\nfree seats: "+parsedObj[marker.index].seats);
             infowindow.open(map, marker);
         });
         google.maps.event.addListener(marker, "dblclick", function (e) {
             if (parsedObj[marker.index].seats > 0) {
+                var name = window.prompt("Enter your name: ");
                 parsedObj[marker.index].seats--;
-                alert("you joined the ride")
+                xhttp.open("GET", "data.json", true);
+                xhttp.send("http://54.86.187.57:8001/");
+                alert("You joined the ride")
                 return false
             } else {
-                alert("ride is full");
+                alert("Ride is full");
                 return false
 
             }
@@ -73,10 +78,10 @@
         bindInfoWindow(marker, map, infowindow, "Cybereason", "");
 
         //users destination/source
-        let data = fetch("/tmp/data.json").then(function (response) {
+        let data = fetch("data.json").then(function (response) {
             return response.json();
-        }).then(function (response) {
-            parsedObj = response.data;
+        }).then(function (res) {
+            parsedObj = res.data;
             console.log(parsedObj);
             //icon for user to office
             var icon2 = {
