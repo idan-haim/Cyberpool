@@ -1,11 +1,9 @@
 import json
 import logging
 import urllib
-<<<<<<< HEAD
 import requests
-=======
 import mysql.connector
->>>>>>> 0f6c1c3cd9eb0bdb931991842c9fe78dd7a6eab2
+
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import request, parse
