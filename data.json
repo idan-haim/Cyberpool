@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "name": "yair",
+      "time": "18:00",
+      "lat": 32.1037343,
+      "lng": 34.7876349,
+      "source": "tel-aviv",
+      "dest": "office",
+      "seats": 4
+    },
+    {
+      "name": "noy",
+      "time": "10:00",
+      "lat": 32.1353847,
+      "lng": 34.796861,
+      "source": "florentin",
+      "dest": "office",
+      "seats": 2
+    },
+    {
+      "name": "dudu",
+      "time": "19:00",
+      "lat": 32.0904682,
+      "lng": 34.7978082,
+      "source": "office",
+      "dest": "givtaim",
+      "seats": 0
+    },
+    {
+      "name": "shahar",
+      "time": "20:30",
+      "lat": 32.057653,
+      "lng": 34.7630777,
+      "source": "office",
+      "dest": "ramat-hasaron",
+      "seats": 2
+    }
+  ]
+}
