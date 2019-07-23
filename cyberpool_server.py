@@ -1,9 +1,11 @@
 import json
 import logging
 import urllib
+import mysql.connector
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import request, parse
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,6 +18,15 @@ logger.addHandler(fh)
 
 class S(BaseHTTPRequestHandler):
 
+    #def __init__(self):
+    #    self.db = mysql.connector.connect(
+    #    host="localhost",
+    #    user="root",
+    #    password="cyberpool",
+    #    database="cyberpool"
+    #    )
+    #    self.cursor_db = self.db.cursor()
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -23,7 +34,8 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        self.wfile.write(b"Hi<br/> Sharing is Caring")
+        f = open('map.html', mode='r')
+        self.wfile.write(str.encode(f.read()))
 
     def do_HEAD(self):
         self._set_headers()
@@ -40,14 +52,17 @@ class S(BaseHTTPRequestHandler):
         logger.info(f'data_to_mysql: {data_to_mysql}')
 
         # print the parsed json to the screen
-        self.wfile.write(json.dumps(data_to_mysql, indent=2).encode('utf-8'))
+        f = open('map.html', mode='r')
+        self.wfile.write(f.read())
 
         return
 
     def convert_query_string_to_dict(self, data):
         data_str = data.decode('utf-8')
         qs_data = urllib.parse.urlsplit(data_str).path.replace("'", '"')
-        return json.loads(qs_data)
+        qs_dict = urllib.parse.parse_qs(qs_data)
+        #logger.info(f'qs_dict type: {type(qs_dict)}')
+        return qs_dict
 
     def parse_data_to_sql(self, data):
         text = data.get("text")
