@@ -1,6 +1,7 @@
 import json
 import logging
 import urllib
+import requests
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import request, parse
@@ -51,19 +52,21 @@ class S(BaseHTTPRequestHandler):
 
     def parse_data_to_sql(self, data):
         text = data.get("text")
-        if not text:
-            response_url = data["response_url"]
-            self.send_message_to_slack(response_url[0], "Offer: ,From: ,To: ,Date: ,Time: ,Num Of Seats: ")
+        print(text)
+        if text == ['']:
+            response_to_user = data["user_id"]
+            self.send_message_to_slack("to create a ride- Offer: ,From: ,To: ,Date: ,Time: ,Num Of Seats: \n To join a ride- join", response_to_user[0])
         else:
             request = text[0].split(',')
             if len(request) == 1 and request[0].lower() == "join":
                 # TODO: add return full list from db
-                    pass
+                response_to_user = data["user_id"]
+                self.send_message_to_slack("http://54.86.187.57:8001/map.html", response_to_user[0])
             else:
                 if (len(request) < 5) or (request[0].lower() == "create" and len(request) < 6) or \
                         (request[0].lower() == "join" and len(request) < 5):
-                    response_url = data["response_url"]
-                    self.send_message_to_slack(response_url[0], "There is not enough arguments")
+                    response_to_user = data["user_id"]
+                    self.send_message_to_slack("There are not enough arguments", response_to_user[0])
                 else:
                     user_id = data["user_id"]
                     user_name = data["user_name"]
@@ -77,16 +80,18 @@ class S(BaseHTTPRequestHandler):
                     logger.info(f'The json for the database {res}')
                     return res
 
-    def send_message_to_slack(self, response_url, msg):
-        post = {"text": "{0}".format(msg)}
-        try:
-            json_data = json.dumps(post)
-            req = request.Request(response_url,
-                                  data=json_data.encode('ascii'),
-                                  headers={'Content-Type': 'application/json'})
-            request.urlopen(req)
-        except Exception as em:
-            print("EXCEPTION: " + str(em))
+    def send_message_to_slack(self, msg, user_id):
+        url = "https://slack.com/api/chat.postMessage"
+        payload = {
+            "channel": "{0}".format(user_id),
+            "text": "{0}".format(msg)
+        }
+        headers = {
+            'Content-Type': "application/json; charset=utf-8",
+            'Authorization': "Bearer xoxb-3434584835-701698562912-OEdnUWqoNSKoBQtorWc5pMIs"
+        }
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        # print(response.content)
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8001):
