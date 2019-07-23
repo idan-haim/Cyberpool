@@ -37,7 +37,9 @@ class S(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_headers()
         f = open('map.html', mode='r')
+        #f1 = open('data.json', mode='r')
         self.wfile.write(str.encode(f.read()))
+        #self.wfile.write(str.encode(f1.read()))
 
     def do_HEAD(self):
         self._set_headers()
@@ -52,7 +54,18 @@ class S(BaseHTTPRequestHandler):
         data_dict = self.convert_query_string_to_dict(self.data_bytes)
         data_to_mysql = self.parse_data_to_sql(data_dict)
         logger.info(f'data_to_mysql: {data_to_mysql}')
-
+        if data_to_mysql:
+          self.connect_to_db()
+          insert_cmd = 'insert into offers (slack_user_id, slack_username, src_ride, dest_ride, departure_time, seats) values (%s, %s, %s, %s, %s, %s)'
+          date = f'{data_to_mysql["date"]} {data_to_mysql["time"]}'
+          logger.info(f'date: {date}, date type: {type(date)}, date str: "{date}"')
+          values_cmd = (data_to_mysql['id'], data_to_mysql['name'], data_to_mysql['from'], data_to_mysql['to'], data_to_mysql['time'], data_to_mysql['seats'])
+          logger.info(f'insert_cmd: {insert_cmd}')
+          logger.info(f'values_cmd: {values_cmd}')
+          self.cursor_db.execute(insert_cmd, values_cmd)
+          self.db.commit()
+          #self.send_message_to_slack()
+          
         # print the parsed json to the screen
         f = open('map.html', mode='r')
         self.wfile.write(f.read())
@@ -92,7 +105,7 @@ class S(BaseHTTPRequestHandler):
                     if request[0].lower() == 'offer':
                         res = {"roll": "0", "from": request[1].strip(), "to": request[2].strip(),
                                "date": request[3].strip(), "time": request[4].strip(), "seats": request[5].strip(),
-                               "id": user_id, "name": user_name}
+                               "id": user_id[0], "name": user_name[0]}
                     else:
                         res = {"roll": "1", "from": request[1].strip(), "to": request[2].strip(),
                                "date": request[3].strip(), "time": request[4].strip(), "id": user_id, "name": user_name}

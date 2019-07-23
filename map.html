@@ -71,10 +71,12 @@
 
         infowindow = new google.maps.InfoWindow();
         bindInfoWindow(marker, map, infowindow, "Cybereason", "");
-
         //users destination/source
-        let data = fetch('data.json').then(function (response) {
-            return response.json();
+
+        let data = fetch("data.json").then(function (response) {
+        console.log("response " + response.text())    
+	return response.text();
+	
         }).then(function (res) {
             parsedObj = res.data;
 
@@ -113,12 +115,9 @@
                         index: i
                     });
                 }//else
-
                 bindInfoWindow(marker, map, infowindow, parsedObj[i].name + "\n", parsedObj[i].time)
-
             }//for
-
-        });
+        }).catch((err)=> {console.log(err)});
     }//initmap
 </script>
 <script async defer
