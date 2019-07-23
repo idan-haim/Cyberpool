@@ -2,7 +2,7 @@
   "data": [
     {
       "name": "yair",
-      "time": "18:00",
+      "time": "08:00",
       "lat": 32.1037343,
       "lng": 34.7876349,
       "source": "tel-aviv",
@@ -35,6 +35,24 @@
       "source": "office",
       "dest": "ramat-hasaron",
       "seats": 2
+    },
+     {
+      "name": "shir",
+      "time": "10:45",
+      "lat": 32.0729314,
+      "lng": 34.7732089,
+      "source": "gan-meir",
+      "dest": "office",
+      "seats": 2
+    },
+    {
+      "name": "roni",
+      "time": "07:45",
+      "lat": 32.012243,
+      "lng": 34.7825364,
+      "source": "holon",
+      "dest": "office",
+      "seats": 3
     }
   ]
 }
