@@ -20,19 +20,19 @@ logger.addHandler(fh)
 
 class S(BaseHTTPRequestHandler):
 
-    #def __init__(self):
-    #    self.db = mysql.connector.connect(
-    #    host="localhost",
-    #    user="root",
-    #    password="cyberpool",
-    #    database="cyberpool"
-    #    )
-    #    self.cursor_db = self.db.cursor()
-
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
+
+    def connect_to_db(self):
+        self.db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="cyberpool",
+        database="cyberpool"
+        )
+        self.cursor_db = self.db.cursor()
 
     def do_GET(self):
         self._set_headers()
