@@ -36,10 +36,16 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        f = open('map.html', mode='r')
-        #f1 = open('data.json', mode='r')
-        self.wfile.write(str.encode(f.read()))
-        #self.wfile.write(str.encode(f1.read()))
+        if self.path == '/':
+          f = open('map.html', mode='r')
+          self.wfile.write(str.encode(f.read()))
+        elif self.path == '/offer':
+          self.connect_to_db()
+          self.cursor_db.execute('select * from offers')
+          results = self.cursor_db.fetchall()
+          logger.info(f'results: {results}, type: {type(results)}')
+          f = open('data.json', mode='r')
+          self.wfile.write(str.encode(str(results).strip('[]')))
 
     def do_HEAD(self):
         self._set_headers()
