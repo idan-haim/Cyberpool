@@ -53,26 +53,31 @@ class S(BaseHTTPRequestHandler):
         text = data.get("text")
         if not text:
             response_url = data["response_url"]
-            self.send_error_to_slack(response_url[0], "Offer: From: To: Date: Time: Num Of Seats: ")
+            self.send_message_to_slack(response_url[0], "Offer: ,From: ,To: ,Date: ,Time: ,Num Of Seats: ")
         else:
-            text = text[0].split(',')
-            if len(text) < 6:
-                response_url = data["response_url"]
-                self.send_error_to_slack(response_url[0], "There is not enough arguments")
+            request = text[0].split(',')
+            if len(request) == 1 and request[0].lower() == "join":
+                # TODO: add return full list from db
+                    pass
             else:
-                user_id = data["user_id"]
-                user_name = data["user_name"]
-                if text[0].lower() == 'offer':
-                    res = {"roll": "0", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                           "time": text[4].strip(), "seats": text[5].strip(), "id": user_id, "name": user_name}
+                if (len(request) < 5) or (request[0].lower() == "create" and len(request) < 6) or \
+                        (request[0].lower() == "join" and len(request) < 5):
+                    response_url = data["response_url"]
+                    self.send_message_to_slack(response_url[0], "There is not enough arguments")
                 else:
-                    res = {"roll": "1", "from": text[1].strip(), "to": text[2].strip(), "date": text[3].strip(),
-                           "time": text[4].strip(), "id": user_id, "name": user_name}
-                logger.info(f'The json for the database {res}')
-                print(res)
-                return res
+                    user_id = data["user_id"]
+                    user_name = data["user_name"]
+                    if request[0].lower() == 'offer':
+                        res = {"roll": "0", "from": request[1].strip(), "to": request[2].strip(),
+                               "date": request[3].strip(), "time": request[4].strip(), "seats": request[5].strip(),
+                               "id": user_id, "name": user_name}
+                    else:
+                        res = {"roll": "1", "from": request[1].strip(), "to": request[2].strip(),
+                               "date": request[3].strip(), "time": request[4].strip(), "id": user_id, "name": user_name}
+                    logger.info(f'The json for the database {res}')
+                    return res
 
-    def send_error_to_slack(self, response_url, msg):
+    def send_message_to_slack(self, response_url, msg):
         post = {"text": "{0}".format(msg)}
         try:
             json_data = json.dumps(post)
@@ -82,7 +87,7 @@ class S(BaseHTTPRequestHandler):
             request.urlopen(req)
         except Exception as em:
             print("EXCEPTION: " + str(em))
-        # print("wrong input")
+
 
 def run(server_class=HTTPServer, handler_class=S, port=8001):
     server_address = ('', port)
