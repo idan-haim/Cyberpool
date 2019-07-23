@@ -1,134 +1,125 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <title>Simple Markers</title>
     <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-        var json1 =
-        [{
-              "name": "yair",
-              "time": "18:00",
-              "lat": 32.1037343,
-              "lng": 34.7876349,
-              "dest":"from"
-        },
-         {
-              "name": "noy",
-              "time": "10:00",
-              "lat": 32.1353847,
-              "lng": 34.796861,
-              "dest":"to"
-          },
-            {
-              "name": "dudu",
-              "time": "19:00",
-              "lat": 32.0904682,
-              "lng": 34.7978082,
-              "dest":"from"
-          },
-          {
-              "name": "shahar",
-              "time": "20:30",
-              "lat": 32.057653,
-              "lng": 34.7630777,
-              "dest":"to"
-          }];
+</head>
+<body>
+<div id="map"></div>
+<script>
+    var marker;
+    var map;
+    var infowindow;
+    let parsedObj;
+    var myLatLng;
 
-
-            function bindInfoWindow(marker, map, infowindow, name, time) {
-                google.maps.event.addListener(marker, 'click', function () {
-                infowindow.setContent(name+time);
-                infowindow.open(map, marker);
-                });
-            }
-
-          function initMap() {
-             //cybereason location
-            var myLatLng = {lat:32.0684395, lng:34.794019};
-
-            var map = new google.maps.Map(document.getElementById('map'), {
-              zoom: 12,
-              center: myLatLng
+    function bindInfoWindow(marker, map, infowindow, name, time) {
+        google.maps.event.addListener(marker, 'click', function () {
+            infowindow.setContent(name + time);
+            infowindow.open(map, marker);
+            google.maps.event.addListener(marker, "dblclick", function (e) {
+                if (parsedObj[marker.index].seats > 0) {
+                    parsedObj[marker.index].seats--;
+                    alert("you joined the ride")
+                } else {
+                    alert("ride is full");
+                }
             });
+        });
+    }
 
-           //icon for cybereason
-           var icon = {
-               url: 'cybereason.png',
-               scaledSize: new google.maps.Size(35, 55) // scaled size
+    function initMap() {
+
+        //cybereason location
+        myLatLng = {lat: 32.0684395, lng: 34.794019};
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: myLatLng
+        });
+
+        //icon for cybereason
+        var icon = {
+            url: 'cybereason.png',
+            scaledSize: new google.maps.Size(35, 55) // scaled size
+        };
+
+        marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            animation: google.maps.Animation.DROP,
+            icon: icon
+        });
+
+        infowindow = new google.maps.InfoWindow();
+        bindInfoWindow(marker, map, infowindow, "Cybereason", "");
+
+        //users destination/source
+        let data = fetch('/Cyberpool/Cyberpool/data.json').then(function (response) {
+            return response.json();
+        }).then(function (res) {
+            parsedObj = res.data;
+
+            console.log(parsedObj);
+            //icon for user to office
+            var icon2 = {
+                url: 'driver3.png',
+                scaledSize: new google.maps.Size(35, 55) // scaled size
+
+            };
+            //icon for user from office
+            var icon3 = {
+                url: 'driver4.png',
+                scaledSize: new google.maps.Size(35, 55), // scaled size
             };
 
-            var marker = new google.maps.Marker({
-              position: myLatLng,
-              map: map,
-              animation: google.maps.Animation.DROP,
-              icon:icon
-            });
-
-
-            //users destination/source
-              var stringified = JSON.stringify(json1);
-              var parsedObj = JSON.parse(stringified);
-              var infowindow = new google.maps.InfoWindow();
-              bindInfoWindow(marker, map, infowindow, "Cybereason","")
-              //icon for user to office
-             var icon2 = {
-               url: 'driver3.png',
-               scaledSize: new google.maps.Size(35, 55) // scaled size
-
-                };
-              //icon for user from office
-              var icon3 = {
-               url: 'driver4.png',
-               scaledSize: new google.maps.Size(35, 55), // scaled size
-                };
-
-              for(i in parsedObj)
-              {
+            for (i in parsedObj) {
                 var myLatLng = {lat: parsedObj[i].lat, lng: parsedObj[i].lng};
 
-                if(parsedObj[i].dest=='from') {
+                if (parsedObj[i].dest == 'office') {
                     var marker = new google.maps.Marker({
                         position: myLatLng,
                         map: map,
                         animation: google.maps.Animation.DROP,
-                        icon: icon2
+                        icon: icon2,
+                        index: i
+
                     });
                 }//if
-                else
-                {
-                        var marker = new google.maps.Marker({
+                else {
+                    var marker = new google.maps.Marker({
                         position: myLatLng,
                         map: map,
                         animation: google.maps.Animation.DROP,
-                        icon: icon3
+                        icon: icon3,
+                        index: i
                     });
-                 }//else
+                }//else
 
-                bindInfoWindow(marker, map, infowindow, parsedObj[i].name+"\n",parsedObj[i].time)
+                bindInfoWindow(marker, map, infowindow, parsedObj[i].name + "\n", parsedObj[i].time)
 
-              }
+            }//for
 
-      }
-    </script>
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSLsv3DJSd7CtJ4mK0EhhYoDfSzKPXABg&callback=initMap">
-    </script>
-  </body>
+        });
+    }//initmap
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSLsv3DJSd7CtJ4mK0EhhYoDfSzKPXABg&callback=initMap">
+</script>
+</body>
 </html>
