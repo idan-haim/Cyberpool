@@ -73,7 +73,7 @@
         bindInfoWindow(marker, map, infowindow, "Cybereason", "");
 
         //users destination/source
-        let data = fetch('data.json').then(function (response) {
+        let data = fetch("/tmp/data.json").then(function (response) {
             return response.json();
         }).then(function (response) {
             parsedObj = response.data;
