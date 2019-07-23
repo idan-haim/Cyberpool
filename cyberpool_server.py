@@ -1,9 +1,11 @@
 import json
 import logging
 import urllib
+import mysql.connector
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import request, parse
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -15,6 +17,15 @@ logger.addHandler(fh)
 
 
 class S(BaseHTTPRequestHandler):
+
+    def __init__(self):
+        self.db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="cyberpool",
+        database="cyberpool"
+        )
+        self.cursor_db = self.db.cursor()
 
     def _set_headers(self):
         self.send_response(200)
